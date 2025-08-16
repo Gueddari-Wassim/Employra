@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+
+model User {
+  id                 Int      @id @default(autoincrement())
+  name               String
+  email              String   @unique
+  userName           String   @unique
+  phoneNumber        String
+  password           String
+  role               Role
+  avatar             String?
+  resume             String?
+  companyName        String?
+  companyDescription String?
+  companyLogo        String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  jobs               Job[]    @relation("CompanyJobs")
+  savedJobs          SavedJob[] @relation("SavedJobs")
+  applications       Application[] @relation("UserApplications")
+  analytics          Analytics[]   @relation("EmployerAnalytics")
+
+  @@map("users")
+}
+
+enum Role {
+  jobseeker
+  employer
+}
+
+
+
+
+
+
+model Job {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  requirements String
+  location    String?
+  category    String?
+  type        JobType
+  companyId   Int
+  company     User     @relation("CompanyJobs", fields: [companyId], references: [id])
+  salaryMin   Float?
+  salaryMax   Float?
+  isClosed    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  savedJobs   SavedJob[] @relation("SavedJobs")
+  applications Application[] @relation("JobApplications")
+
+
+  @@map("jobs")
+}
+
+
+enum JobType {
+  Remote
+  FullTime
+  PartTime
+  Internship
+  Contract
+}
+
+
+model SavedJob {
+  id         Int      @id @default(autoincrement())
+  jobseeker  User     @relation("SavedJobs", fields: [jobseekerId], references: [id])
+  jobseekerId Int
+  job        Job      @relation("SavedJobs", fields: [jobId], references: [id])
+  jobId      Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("saved_jobs")
+}
+
+model Application {
+  id          Int       @id @default(autoincrement())
+  job         Job       @relation("JobApplications", fields: [jobId], references: [id])
+  jobId       Int
+  applicant   User      @relation("UserApplications", fields: [applicantId], references: [id])
+  applicantId Int
+  resume      String?
+  status      ApplicationStatus @default(Applied)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("applications")
+}
+
+enum ApplicationStatus {
+  Applied
+  InReview
+  Rejected
+  Accepted
+}
+
+model Analytics {
+  id                        Int      @id @default(autoincrement())
+  employer                  User     @relation("EmployerAnalytics", fields: [employerId], references: [id])
+  employerId                Int
+  totalJobsPosted           Int      @default(0)
+  totalApplicationsReceived Int      @default(0)
+  totalHired                Int      @default(0)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  @@map("analytics")
+}
+
