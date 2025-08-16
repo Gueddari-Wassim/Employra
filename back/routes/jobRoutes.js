@@ -218,5 +218,85 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+//Update a job (Employer only)
+router.put("/:id", authenticate, async (req, res) => {
+  try {
+    const jobId = Number(req.params.id);
+    const userId = req.user.id;
+
+    const job = await prisma.job.findUnique({ where: { id: jobId } });
+
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
+    if (job.companyId !== userId) {
+      return res.status(403).json({ message: "Not authorized to update this job" });
+    }
+
+    const updatedJob = await prisma.job.update({
+      where: { id: jobId },
+      data: { ...req.body }, 
+    });
+
+    res.json(updatedJob);
+  } catch (err) {
+    console.error("Error updating job:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
+//Delete a job (Employer only)
+router.delete("/:id", authenticate, async (req, res) => {
+  try {
+    const jobId = Number(req.params.id);
+    const userId = req.user.id;
+
+    const job = await prisma.job.findUnique({ where: { id: jobId } });
+
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
+    if (job.companyId !== userId) {
+      return res.status(403).json({ message: "Not authorized to delete this job" });
+    }
+
+    await prisma.job.delete({ where: { id: jobId } });
+
+    res.json({ message: "Job deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting job:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.patch("/:id/toggle-close", authenticate, async (req, res) => {
+  try {
+    const jobId = Number(req.params.id);
+    const userId = req.user.id;
+
+    // Find the job
+    const job = await prisma.job.findUnique({ where: { id: jobId } });
+    if (!job) return res.status(404).json({ message: "Job not found" });
+
+    // Check ownership
+    if (job.companyId !== userId) {
+      return res.status(403).json({ message: "Not authorized to close this job" });
+    }
+
+    // Toggle isClosed
+    const updatedJob = await prisma.job.update({
+      where: { id: jobId },
+      data: { isClosed: !job.isClosed },
+    });
+
+    res.json({ message: updatedJob.isClosed ? "Job marked as closed" : "Job reopened" });
+  } catch (err) {
+    console.error("Error toggling job close status:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = router;
