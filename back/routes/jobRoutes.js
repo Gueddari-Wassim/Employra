@@ -8,7 +8,7 @@ const authenticate = require('../middlewares/authMiddleware');
 
 
 
-//create user
+//create job
 router.post("/", authenticate, async (req, res) => {
   try {
     if (req.user.role !== "employer") {

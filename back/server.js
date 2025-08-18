@@ -6,6 +6,8 @@ const path = require('path');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const jobRoutes = require('./routes/jobRoutes');
+const appRoutes =require('./routes/appRoutes');
+
 
 const { PrismaClient } = require('@prisma/client');
 const prisma=new PrismaClient();
@@ -19,7 +21,7 @@ const app = express();
 app.use(
     cors({
         origin: 'http://localhost:5173',
-        methods: ["GET", "POST", "PUT", "DELETE"],
+        methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
         credentials:true,
         allowedHeaders: ["Content-Type", "Authorization"],
     })
@@ -32,7 +34,9 @@ app.use(express.json());
 app.use('/uploads/', express.static(path.join(__dirname + '/uploads'), {}));
 app.use("/api/auth", authRoutes);
 app.use("/api/user",userRoutes);
-app.use("/api/jobs",jobRoutes)
+app.use("/api/jobs",jobRoutes);
+app.use("/api/applications",appRoutes);
+
 
 
 
