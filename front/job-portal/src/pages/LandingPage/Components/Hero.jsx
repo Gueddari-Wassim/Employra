@@ -2,11 +2,12 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowBigRight, Search } from 'lucide-react';
+import { useAuth } from '../../../Context/AuthContext';
 
 export default function Hero() {
 
-    const isAuthenticated=true;
-    const user={fullname:"wassim",role:"employer"}
+    const {user,isAuthenticated}=useAuth();
+    
     const navigate=useNavigate();
 
   return (
@@ -42,7 +43,9 @@ export default function Hero() {
                     whileHover={{scale:1.02}}
                     whileTap={{scale:0.98}}
                     className='group bg-gradient-to-r from-teal-800 to-teal-500 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-teal-900 hover:to-teal-900 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center space-x-2'
-                    onClick={()=>navigate('find-jobs')}
+                    onClick={()=>navigate(isAuthenticated&&user?.role==='jobseeker'
+                        ?'/find-jobs'
+                        :'/login')}
                     >
                         <Search className='w-5 h-5'/>
                         <span>Find A Job</span>
@@ -55,7 +58,7 @@ export default function Hero() {
                     className='bg-white border-2 border-gray-200 text-gray-700 px-8 py-4 rounded-xl font-semibold hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md'
                     onClick={()=>navigate(
                         isAuthenticated&&user?.role==='employer'
-                        ?'/employer-dashbord'
+                        ?'/post-job'
                         :'/login'
                     )}
                     >

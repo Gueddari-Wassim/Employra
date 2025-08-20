@@ -8,156 +8,146 @@ import { validatePoneNumber } from '../../Utils/helper';
 import { validateUserName } from '../../Utils/helper';
 import { validateAvatar } from '../../Utils/helper';
 import axios from 'axios';
+import axiosInstance from '../../Utils/axiosinstance';
 
 
 export default function SignUp() {
 
-  const[formData,setFormData]=useState({
-    fullName:'',
-    email:'',
-    userName:'',
-    phoneNumber:'',
-    password:'',
-    avatar:null,
-    role:''
-  })
-
-  const[formState,setFormState]=useState({
-    loading:false,
-    errors:{},
-    showPassword:false,
-    avatarPreview:null,
-    success:false
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    userName: '',
+    phoneNumber: '',
+    password: '',
+    avatar: null, // will store the uploaded URL
+    role: ''
   });
 
+  const [formState, setFormState] = useState({
+    loading: false,
+    errors: {},
+    showPassword: false,
+    avatarPreview: null,
+    success: false
+  });
 
-  //Handle Input changes
-  const handleInputchange=(e)=>{
-    const {name,value}=e.target;
-    setFormData(prev=>({
+  // Handle Input changes
+  const handleInputchange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
       ...prev,
-      [name]:value
+      [name]: value
     }));
-    if(formState.errors[name]){
-      setFormState(prev=>({
+    if (formState.errors[name]) {
+      setFormState(prev => ({
         ...prev,
-        errors:{...prev.errors,[name]:''}
+        errors: { ...prev.errors, [name]: '' }
       }));
     }
   };
 
-  const handleRoleChange=(role)=>{  
-    setFormData((prev)=>({...prev,role}));
-    if(formState.errors.role){
-      setFormState((prev)=>({
+  const handleRoleChange = (role) => {
+    setFormData((prev) => ({ ...prev, role }));
+    if (formState.errors.role) {
+      setFormState((prev) => ({
         ...prev,
-        errors:{...prev.errors,role:""},
+        errors: { ...prev.errors, role: "" },
       }));
     }
   };
 
   const handleAvatarChange = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const error = validateAvatar(file);
-  if (error) {
-    setFormState(prev => ({
-      ...prev,
-      errors: { ...prev.errors, avatar: error },
-    }));
-    return;
-  }
+    const error = validateAvatar(file);
+    if (error) {
+      setFormState(prev => ({
+        ...prev,
+        errors: { ...prev.errors, avatar: error },
+      }));
+      return;
+    }
 
-  const formDataObj = new FormData();
-  formDataObj.append("image", file);
-
-  try {
-    const res = await axios.post("/api/auth/upload-image", formDataObj, {
-      headers: { "Content-Type": "multipart/form-data" }
-    });
-
-    setFormData(prev => ({
-      ...prev,
-      avatar: res.data.imgurl
-    }));
-
-    setFormState(prev => ({
-      ...prev,
-      avatarPreview: res.data.imgurl,
-      errors: { ...prev.errors, avatar: "" }
-    }));
-  } catch (err) {
-    console.error("Image upload error:", err);
-  }
-};
-
-
-
-  const validateForm=()=>{
-    const errors={
-          fullName:!formData.fullName?'Enter Full Name':'',
-          email:validateEmail(formData.email),
-          userName:validateUserName(formData.userName),
-          phoneNumber:validatePoneNumber(formData.phoneNumber),
-          password:validatePassword(formData.password),
-          role:!formData.role?"Please Select a Role":"",
-          avatar:"",
-        }
-        Object.keys(errors).forEach(key=>{
-          if(!errors[key]) delete errors[key];
-        });
-
-        setFormState(prev=>({...prev,errors}));
-        return Object.keys(errors).length === 0;
-  };
-
-
-
-
-  
-  const handleSubmit=async(e)=>{
-    e.preventDefault();
-    if(!validateForm())return;
-    setFormState((prev)=>({...prev,loading:true}));
+    const formDataObj = new FormData();
+    formDataObj.append("image", file);
 
     try {
-    // Send data to backend API
-    const response = await axios.post("/api/auth/signup", {
-      fullName: formData.fullName,
-      email: formData.email,
-      userName: formData.userName,
-      phoneNumber: formData.phoneNumber,
-      password: formData.password,
-      role: formData.role,
-      avatar: formData.avatar || null
+      const res = await axios.post("/api/auth/upload-image", formDataObj, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
 
+      setFormData(prev => ({
+        ...prev,
+        avatar: res.data.imgurl // store uploaded image URL
+      }));
+
+      setFormState(prev => ({
+        ...prev,
+        avatarPreview: res.data.imgurl,
+        errors: { ...prev.errors, avatar: "" }
+      }));
+    } catch (err) {
+      console.error("Image upload error:", err);
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {
+      fullName: !formData.fullName ? 'Enter Full Name' : '',
+      email: validateEmail(formData.email),
+      userName: validateUserName(formData.userName),
+      phoneNumber: validatePoneNumber(formData.phoneNumber),
+      password: validatePassword(formData.password),
+      role: !formData.role ? "Please Select a Role" : "",
+      avatar: "",
+    }
+    Object.keys(errors).forEach(key => {
+      if (!errors[key]) delete errors[key];
     });
 
-    // If successful
-    console.log("Signup Success:", response.data);
-
-    setFormState((prev) => ({
-      ...prev,
-      loading: false,
-      success: true, // show success message
-      errors: {}
-    }));
-
-  } catch (error) {
-    console.error("Signup Error:", error);
-
-    // Extract error message from backend
-    const errorMessage =
-      error.response?.data?.message || "Registration failed. Please try again.";
-
-    setFormState((prev) => ({
-      ...prev,
-      loading: false,
-      errors: { submit: errorMessage }
-    }));
-  }
+    setFormState(prev => ({ ...prev, errors }));
+    return Object.keys(errors).length === 0;
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    setFormState((prev) => ({ ...prev, loading: true }));
+
+    try {
+      // Avatar is already uploaded and formData.avatar contains the URL
+      const response = await axiosInstance.post("/api/auth/signup", {
+        fullName: formData.fullName,
+        email: formData.email,
+        userName: formData.userName,
+        phoneNumber: formData.phoneNumber,
+        password: formData.password,
+        role: formData.role,
+        avatar: formData.avatar || null
+      });
+
+      console.log("Signup Success:", response.data);
+
+      setFormState((prev) => ({
+        ...prev,
+        loading: false,
+        success: true,
+        errors: {}
+      }));
+
+    } catch (error) {
+      console.error("Signup Error:", error);
+
+      setFormState((prev) => ({
+        ...prev,
+        loading: false,
+        errors: { submit: error.response?.data?.message || "Registration failed. Please try again." }
+      }));
+    }
+  };
+
 
 
   if (formState.success) {

@@ -2,12 +2,13 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import { BriefcaseBusiness } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '../../../Context/AuthContext';
 
 export default function Header() {
 
-    const isAuthenticated=false;
-    const user={fullname:"wassim",role:"employer"}
-    const navigate=useNavigate();
+    const {user,isAuthenticated}=useAuth();
+
+    const navigate = useNavigate();
 
   return (
     <motion.header
@@ -27,7 +28,9 @@ export default function Header() {
                 </div>
 
                 <nav className='hidden md:flex items-center space-x-8'>
-                    <a onClick={()=>navigate('/find-jobs')}
+                    <a onClick={()=>navigate(isAuthenticated&&user?.role==='jobseeker'
+                        ?'/find-jobs'
+                        :'/login')}
                         className='text-gray-600 hover:text-gray-900 transition-colors font-medium'>
                         Find A Job
                     </a>

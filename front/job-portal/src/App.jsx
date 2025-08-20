@@ -14,6 +14,7 @@ import EmployerProfilePage from "./pages/Employer/EmployerProfilePage";
 import ManageJobs from "./pages/Employer/ManageJobs";
 import ApplicationViewer from "./pages/Employer/ApplicationViewer";
 import axios from 'axios';
+import { AuthProvider } from "./Context/AuthContext";
 
 axios.defaults.baseURL = 'http://localhost:8000';
 axios.defaults.withCredentials = true;
@@ -21,6 +22,7 @@ axios.defaults.withCredentials = true;
 export default function App() {
   return (
     <div>
+      <AuthProvider>
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
@@ -46,6 +48,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
+      </AuthProvider>
 
       {/* Popup messages */}
       <Toaster

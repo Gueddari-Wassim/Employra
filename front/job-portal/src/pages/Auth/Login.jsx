@@ -3,7 +3,7 @@ import{ motion }from 'framer-motion';
 import {AlertCircle, ArrowLeft, CheckCircle, Eye, EyeOff,Loader, Lock, Mail} from 'lucide-react';
 import { Link, useNavigate }from 'react-router-dom'
 import { validateEmail } from '../../Utils/helper';
-import axios from 'axios';
+import axiosInstance from '../../Utils/axiosinstance';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -62,10 +62,11 @@ export default function Login() {
     setFormState(prev=>({...prev,loading:true}));
     
     try {
-      const response = await axios.post("/api/auth/login",
+      const response = await axiosInstance.post("/api/auth/login",
         {
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          rememberMe: formData.rememberMe
         },
         {
           headers: { 'Content-Type': 'application/json' }
