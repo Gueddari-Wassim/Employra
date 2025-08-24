@@ -132,7 +132,7 @@ export default function EmployerDashbord() {
               </button>
             }
           >
-            <div className='sapce-y-3'>
+            <div className='space-y-3'>
               {dashbordData?.data?.recentJobs
                 ?.slice(0,3)
                 ?.map((job,index)=>(

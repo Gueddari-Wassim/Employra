@@ -1,10 +1,10 @@
-import DashbordLayout from '../../Components/Layout/DashbordLayout'
+import DashbordLayout from '../../components/Layout/DashbordLayout'
 import { useState,useEffect } from 'react'
 import { useLocation,useNavigate } from 'react-router-dom'
-import axiosInstance from '../../Utils/axiosinstance'
+import axiosInstance from '../../utils/axiosInstance'
 import { CATEGORIES,JOB_TYPES } from '../../Utils/data'
 import toast from 'react-hot-toast'
-import { AlertCircle, Briefcase, DollarSign, Eye, MapPin, Send, Users } from 'lucide-react'
+import { AlertCircle, Briefcase, DollarSign, Eye, Loader, MapPin, Send, Users } from 'lucide-react'
 import InputField from '../../Components/Input/InputField'
 import SelectField from '../../Components/Input/SelectField'
 import TextareaField from '../../Components/Input/TextareaField'
@@ -61,8 +61,8 @@ export default function JobPostingForm() {
       location: formData.location,
       category: formData.category,
       type: formData.jobType,
-      salaryMin: formData.salaryMin,
-      salaryMax: formData.salaryMax,
+      salaryMin: formData.salaryMin ? parseFloat(formData.salaryMin) : null,
+      salaryMax: formData.salaryMax ? parseFloat(formData.salaryMax) : null,
     };
 
     try {
@@ -133,6 +133,41 @@ export default function JobPostingForm() {
     const validationErrors = validateForm(formData);
     return Object.keys(validationErrors).length === 0;
   };
+
+
+  useEffect(()=>{
+
+    const fetchJobDetails=async()=>{
+      if(jobId){
+        try{
+          const response = await axiosInstance.get(`/api/jobs/${jobId}`);
+          
+            const jobData = response.data;
+            if(jobData){
+            setFormData({
+              jobTitle: jobData.title,
+              location: jobData.location,
+              category: jobData.category,
+              jobType: jobData.type,
+              description: jobData.description,
+              requirements: jobData.requirements,
+              salaryMin: jobData.salaryMin,
+              salaryMax: jobData.salaryMax,
+            });
+          }
+          
+        }catch(error){
+          console.error("Error fetching job details:");
+          if(error.response){
+            console.error("API Error:", error.response.data.message);
+          }
+        }
+      }
+    };
+    fetchJobDetails();
+
+    return()=>{}
+  },[])
 
   if(isPreview){
     return (
@@ -228,9 +263,9 @@ export default function JobPostingForm() {
                 label='Job Description'
                 id='description'
                 placeholder='Enter job description'
-                value={formData.jobDescription}
+                value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                error={errors.jobDescription}
+                error={errors.description}
                 helperText="Include key responsibilities, day-to-day tasks , and what make this role exiting"
                 required
               />

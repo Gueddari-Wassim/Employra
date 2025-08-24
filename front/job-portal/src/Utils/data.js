@@ -72,11 +72,11 @@ export const CATEGORIES = [
 ];
 
 export const JOB_TYPES = [
-    { value: "Remote", label: "Remote" },
-    { value: "Full-Time", label: "Full-Time" },
-    { value: "Part-Time", label: "Part-Time" },
-    { value: "Contract", label: "Contract" },
-    { value: "Internship", label: "Internship" },
+  { value: 'Remote', label: 'Remote' },
+  { value: 'FullTime', label: 'Full-Time' },
+  { value: 'PartTime', label: 'Part-Time' },
+  { value: 'Internship', label: 'Internship' },
+  { value: 'Contract', label: 'Contract' }
 ];
 
 export const SALARY_RANGES = [
